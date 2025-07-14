@@ -13,49 +13,45 @@ import json
 db = firestore.Client.from_service_account_json("keys.json")
 
 
-dbNames = db.collection("names")
-st.header("Nuevo registro")
+dbMetas = db.collection("metas")
+st.header("Nueva meta")
 
 
-index = st.text_input("Index")
-name = st.text_input("Name")
-sex = st.selectbox(
-    'Select Sex',
-    ('F', 'M', 'Other'))
+meta = st.text_input("meta")
+fecha = st.text_input("fecha mm/yyyy")
 
 
-submit = st.button("Crear nuevo registro")
+submit = st.button("Crear nueva meta")
 
 
 # Once the name has submitted, upload it to the database
-if index and name and sex and submit:
- doc_ref = db.collection("names").document(name)
+if meta and fecha  and submit:
+ doc_ref = db.collection("metas").document(meta)
  doc_ref.set({
-   "index": index, 
-   "name": name,
-   "sex": sex
+   "meta": meta, 
+   "fecha": fecha,
  })
- st.sidebar.write("Registro insertado correctamente")
+ st.sidebar.write("Meta insertada correctamente")
 
 
 # ...
-def loadByName(name):
- names_ref = dbNames.where(u'name', u'==', name)
- currentName = None
- for myname in names_ref.stream():
-   currentName = myname 
- return currentName
+def loadByName(meta):
+ metas_ref = dbMetas.where(u'meta', u'==', meta)
+ currentMeta = None
+ for mymeta in metas_ref.stream():
+   currentMeta = mymeta 
+ return currentMeta
 
 
-st.sidebar.subheader("Buscar nombre")
-nameSearch = st.sidebar.text_input("nombre")
+st.sidebar.subheader("Buscar meta")
+metaSearch = st.sidebar.text_input("meta")
 btnFiltrar = st.sidebar.button("Buscar")
 
 
 if btnFiltrar:
- doc = loadByName(nameSearch)
+ doc = loadByName(metaSearch)
  if doc is None:
-   st.sidebar.write("Nombre no existe")
+   st.sidebar.write("Meta no existe")
  else:
    st.sidebar.write(doc.to_dict())
 
@@ -66,29 +62,32 @@ btnEliminar = st.sidebar.button("Eliminar")
 
 
 if btnEliminar:
- deletename = loadByName(nameSearch)
+ deletename = loadByName(metaSearch)
  if deletename is None:
-   st.sidebar.write(f"{nameSearch} no existe")
+   st.sidebar.write(f"{metaSearch} no existe")
  else:
-   dbNames.document(deletename.id).delete()
-   st.sidebar.write(f"{nameSearch} eliminado")
+   dbMetas.document(deletename.id).delete()
+   st.sidebar.write(f"{metaSearch} eliminado")
  #...
 
 
 st.sidebar.markdown("""---""")
-newname = st.sidebar.text_input("Actualizar nombre")
+newMeta = st.sidebar.text_input("Actualizar meta")
+newFecha = st.sidebar.text_input("Actualizar fecha")
+
 btnActualizar = st.sidebar.button("Actualizar")
 
 
 if btnActualizar:
- updatename = loadByName(nameSearch)
- if updatename is None:
-   st.write(f"{nameSearch} no existe")
+ updateMeta = loadByName(metaSearch)
+ if updateMeta is None:
+   st.write(f"{metaSearch} no existe")
  else:
-   myupdatename = dbNames.document(updatename.id)
-   myupdatename.update(
+   myupdateMeta = dbMetas.document(updateMeta.id)
+   myupdateMeta.update(
      {
-       "name": newname
+       "meta": newMeta,
+       "fecha" : newFecha
      }
    )
 
@@ -96,7 +95,7 @@ if btnActualizar:
 # ...
 
 
-names_ref = list(db.collection(u'names').stream())
-names_dict = list(map(lambda x: x.to_dict(), names_ref))
-names_dataframe = pd.DataFrame(names_dict)
-st.dataframe(names_dataframe)
+metas_ref = list(db.collection(u'metas').stream())
+metas_dict = list(map(lambda x: x.to_dict(), metas_ref))
+metas_dataframe = pd.DataFrame(metas_dict)
+st.dataframe(metas_dataframe)
