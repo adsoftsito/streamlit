@@ -6,11 +6,11 @@ from sqlalchemy import text
 
 import json
 
-#key_dict = json.loads(st.secrets["textkey"])
-#creds = service_account.Credentials.from_service_account_info(key_dict)
-#db = firestore.Client(credentials=creds, project="names-project-demo")
+key_dict = json.loads(st.secrets["textkey"])
+creds = service_account.Credentials.from_service_account_info(key_dict)
+db = firestore.Client(credentials=creds, project="names-project-demo-adsoft")
 
-db = firestore.Client.from_service_account_json("keys.json")
+#db = firestore.Client.from_service_account_json("keys.json")
 
 dbMetas = db.collection("metas")
 st.header("Nueva meta")
@@ -120,5 +120,5 @@ if usuario and comentario  and submitVisita:
   st.write("Meta insertada correctamente")
 
 if st.button("Query Postgresql table"):
-    df = conn.query('SELECT * FROM visitas;', ttl="10m")
+    df = conn.query('SELECT * FROM visitas;', ttl="30m")
     st.dataframe(df)
